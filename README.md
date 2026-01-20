@@ -1,43 +1,43 @@
-# AberTecno Core
+# AberTecno Core (Distribution)
 
-![Version](https://img.shields.io/badge/version-2.2.0-blue.svg) ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Excel-lightgrey.svg) ![Status](https://img.shields.io/badge/status-Production-green.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Excel-lightgrey.svg) ![Status](https://img.shields.io/badge/status-Production-green.svg)
 
-**AberTecno Core** is a high-performance COM Middleware designed to bridge Microsoft Excel (VBA) with Cloud Services (Google AppSheet / Apps Script) asynchronously.
+**AberTecno Core** is a high-performance COM Middleware designed to bridge Microsoft Excel (VBA) with Cloud Services.
 
-It enables Excel macros to log data, track processes, and sync information with the cloud **without freezing the user interface**, ensuring data integrity even in offline scenarios.
+This repository hosts the **distribution binaries and installer**. The source code is proprietary and hosted in a private secure repository.
+
+---
+
+## 📥 Download & Install
+
+> **Current Version:** Check the [`version.txt`](version.txt) file in the file list above.
+
+1.  **Download:** Click on [`AberTecnoSetup.exe`](AberTecnoSetup.exe) in the file list above and click the "Download" button (save raw file).
+2.  **Install:** Run the `.exe` as Administrator.
+3.  **Ready:** The library is now registered and ready to use in Excel.
 
 ---
 
 ## 🚀 Key Features
 
-* **Async "Fire & Forget" Architecture:** Offloads HTTP requests to background threads. The Excel UI remains responsive 100% of the time.
-* **Offline Tolerance (Store & Forward):** If the internet connection fails, logs are queued locally and automatically synchronized when the connection is restored.
-* **Auto-Update Mechanism:** The library checks for updates on startup and self-updates seamlessly using GitHub Releases.
-* **Zero-Config Integration:** Uses Late Binding (`CreateObject`). No need to manually add References in the VBA Editor.
-* **Thread Safety:** Robust file handling with locking mechanisms to prevent concurrency errors.
+* **Zero-Freeze:** Excel UI remains responsive while data is syncing.
+* **Offline Mode:** Logs are stored locally if internet is lost and synced later.
+* **Auto-Update:** The library self-checks this repository for new versions.
 
-## 📦 Installation
+---
 
-This repository contains the distribution binaries and the installer. **Source code is proprietary and hosted in a private repository.**
+## 💻 Quick Start (VBA)
 
-1.  Download the latest installer from the [Releases Page](https://github.com/TU_USUARIO/AberTecno-Dist/releases).
-2.  Run `AberTecnoSetup.exe`.
-3.  Follow the wizard instructions (Administrator rights required).
-4.  The library is now registered in your system.
-
-## 💻 Usage (VBA)
-
-You can interact with the core library using standard VBA. Since it is a COM Server, you can instantiate it directly.
+Copy and paste this code into your Excel Module to start using the library immediately.
 
 ### 1. Initialization
-Place this at the start of your process. It spins up the background threads and checks for pending logs or updates.
 
 ```vba
 Dim AT As Object
 Set AT = CreateObject("AberTecno.Controller")
 
-' Initialize with a unique Flow ID (Optional)
-AT.Init "FLOW_100"
+' Initialize with a unique Flow ID
+AT.Init "FLOW_MAIN_PROCESS"
 
 ' Set with a unique Function ID (Optional)
 AT.SetFunction "FUNCTION_100"
@@ -51,11 +51,11 @@ Send data to the cloud. This method returns immediately (non-blocking).
 AT.Log Format(Now, "dd/mm/yyyy hh:mm:ss"), _
        Format(Now, "dd/mm/yyyy hh:mm:ss"), _
        "SUCCESS", _
-       "Process completed successfully."
+       "Data processed successfully."
 ```
 
-### 3. Manual Sync (Optional)
-The system syncs automatically on Init and Log, but you can force a sync trigger.
+### 3. Force Sync (Optional)
+Usually not needed (auto-syncs on Init), but useful for testing.
 
 ```vba
 AT.Sync
@@ -73,7 +73,7 @@ AT.Sync
 graph LR
     A[Excel VBA] -- Late Binding --> B(AberTecno Core DLL)
     B -- Async Thread --> C{Internet?}
-    C -- Yes --> D[Google Apps Script]
+    C -- Yes --> D[Cloud Gateway]
     C -- No --> E[Local Queue .txt]
     D --> F[AppSheet DB]
     E -- Retry Later --> B
